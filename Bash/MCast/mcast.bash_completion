@@ -1,0 +1,27 @@
+#!/bin/bash
+dir="${HOME}/.mcast"
+
+_mcast_complete() {
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	if [ $COMP_CWORD -eq 1 ]; then
+		COMPREPLY=( $(compgen -W "add del last list play ui url usage" -- $cur) )
+	elif [ $COMP_CWORD -eq 2 ]; then
+		case "$prev" in
+			"play")
+				COMPREPLY=( $(compgen -W "$(ls -1 ${dir})" -- $cur) )
+				;;
+			"del")
+				COMPREPLY=( $(compgen -W "$(ls -1 ${dir})" -- $cur) )
+				;;
+			*)
+				;;
+		esac
+	fi
+}
+
+complete -F _mcast_complete mcast

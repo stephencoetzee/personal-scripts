@@ -1,0 +1,184 @@
+#!/bin/bash
+
+action=$1
+dir="${HOME}/.mcast"
+
+if [ ! -d "${dir}" ]; then
+	mkdir ${dir}
+fi	
+
+function usage() {
+	echo '	MCast Shoutcast wrapper script
+add [title] [url] - Adds a shoutcast stream for playback later
+del [title]       - Delete an existing shoutcast stream
+last	          - Plays the last used radio station
+list		  - List all stored shoutcast streams
+play [title]      - Play a stored shoutcast stream
+ui	          - Start a zenity frontend
+url [id]          - Adds a shoutcast stream using the station ID
+usage		  - This help screen.'
+echo
+}
+
+function list() {
+echo '==== List of stored Streams ===='
+	ls -1 ${dir}
+}
+
+function add() {
+	if [ "$1" = 'add' ]; then
+		shift
+	fi
+
+	if [ $# -lt 2 ]; then
+		echo '###### Not enough parameters ######'
+		echo "Given: $@"
+		echo 
+		usage
+		exit
+	fi
+
+	title="$1"
+	url="$2"
+
+	if [ ! -f "${dir}/${title}" ]; then
+		echo "Adding station ${title}"
+		echo ${url} > ${dir}/${title}
+	else
+		echo 'File exists'
+		exit 1
+	fi
+}
+
+function del() {
+	shift
+	title="$1"
+	
+	if [ -f "${dir}/${title}" ]; then
+		rm -f ${dir}/${title}
+	else
+		echo "File doesn't exist"
+		exit 1
+	fi
+
+}
+
+function play() {
+	if [ "$1" = 'play' ]; then
+		shift
+	fi
+	
+	title="$1"
+
+	if [ -f "${dir}/${title}" ]; then
+		url="$(cat ${dir}/${title})"
+		echo $title > /var/tmp/mcast
+		mplayer $url
+	else
+		echo 'No station found by that name'
+		exit 1
+	fi
+}
+
+function url() {
+	if [ "$1" = 'url' ]; then
+		shift
+	fi
+	id=$1
+	curl "http://yp.shoutcast.com/sbin/tunein-station.pls?id=$id" > /tmp/dataset
+
+	title="$(grep Title1 /tmp/dataset | awk -F') ' '{print $2}' | tr -d ' ')"
+	if [ -z "$title" ]; then
+		title="$(grep Title1 /tmp/dataset | tr -d ' ')"
+	fi
+
+	url="$(grep File1 /tmp/dataset | awk -F'=' '{print $2}')"
+
+	add $title $url
+}
+
+function ui() {
+	
+	selection="$(zenity --width 300 --height 300 --list --title "MCast UI Actions" --column "Action" Play Stop Last Url Delete)"
+	case $selection in 
+		Play)
+			cd ${dir}
+			/usr/bin/aterm -e /home/stephen/bin/mcast play $(zenity --width 300 --height 300 --list --title "MCast Play Selector" --column "Action" *)
+			if [ $? -ne 0 ]; then
+				error "Playback Failed!"
+			fi
+			;;
+		Stop)
+			killall mplayer
+			if [ $? -ne 0 ]; then
+				error "Stop Failed!"
+			fi
+			;;
+		Url)
+			station="$(zenity --width 300 --height 20 --title "Station ID" --text-info --editable)"
+			if [ "$station" ]; then
+				url $station
+			else
+				error "No station ID given!"
+			fi
+			
+			;;
+		Last)
+			/usr/bin/aterm -e /home/stephen/bin/mcast last
+			if [ $? -ne 0 ]; then
+				error "Playback Failed!"
+			fi
+			;;
+		Delete)
+			cd ${dir}
+			rm $(zenity --width 300 --height 300 --list --title "MCast Delete Selector" --column "Action" *)
+			if [ $? -ne 0 ]; then
+				error "Delete Failed!"
+			fi
+			;;
+	esac
+}
+
+function last() {
+		if [ "$(cat /var/tmp/mcast)" ]; then
+			play $(cat /var/tmp/mcast)
+		else
+			echo 'No last station found'
+		fi
+
+}
+
+function error() {
+	message=$@
+	zenity --width 300 --height 20 --title "MCast Error" --error --text="$message"
+}
+
+case $action in 
+	add)
+		add $@
+		;;
+	url)	
+		url $@
+		;;
+	del)
+		del $@
+		;;
+	play)
+		play $@
+		;;
+	list)
+		list
+		;;
+	last)
+		last
+		;;
+	ui)	
+		ui
+		;;
+	*)
+		usage
+		list
+		;;
+esac
+
+

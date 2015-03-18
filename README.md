@@ -27,3 +27,15 @@ Command line option to set post limit and score limits
 Command line switch to be able to toggle between the sort methods (new / hot / top / rising)
 
 Ability to handle tumblr and gfycat links.
+
+++++++
+
+*history_stats:*
+Fun bash one-liner to get a quick status of your bash history, giving usage percentages. 
+
+This defaults to 60 lines, but can be set as an argument
+
+*Usage:*
+history_stats [number of lines]
+
+

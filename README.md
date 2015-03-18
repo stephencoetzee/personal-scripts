@@ -10,6 +10,9 @@ Yes, the script does use two different methods for downloading files, a urlretri
 
 This is due to worrying about hitting API limits. But probably unnecessary. I'll fix it whenever.
 
+_Requirements:_
+
+Python Modules: requests, urllib urllib.request, re, os, sys, time, imgurpython
 
 _Usage:_
 

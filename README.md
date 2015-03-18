@@ -35,7 +35,9 @@ usage             - This help screen.
 
 **Finding the shoutcast stationId:**
 In a browser navigate to [shoutcast.com](http://www.shoutcast.com) and find a station you like. Hover over the download button and you will notice the url it wants to go to is something like this
-```yp.shoutcast.com/sbin/tunein-station.pls?id=558051```
+```
+yp.shoutcast.com/sbin/tunein-station.pls?id=558051
+```
 
 Those last 6 digits are the station ID
 

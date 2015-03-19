@@ -103,7 +103,7 @@ function ui() {
 	case $selection in 
 		Play)
 			cd ${dir}
-			/usr/bin/aterm -e /home/stephen/bin/mcast play $(zenity --width 300 --height 300 --list --title "MCast Play Selector" --column "Action" *)
+			/usr/bin/aterm -e $(which mcast) play $(zenity --width 300 --height 300 --list --title "MCast Play Selector" --column "Action" *)
 			if [ $? -ne 0 ]; then
 				error "Playback Failed!"
 			fi
@@ -124,7 +124,7 @@ function ui() {
 			
 			;;
 		Last)
-			/usr/bin/aterm -e /home/stephen/bin/mcast last
+			/usr/bin/aterm -e $(which mcast) last
 			if [ $? -ne 0 ]; then
 				error "Playback Failed!"
 			fi

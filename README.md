@@ -79,3 +79,10 @@ This defaults to 60 lines, but can be set as an argument
 history_stats [number of lines]
 
 
+++++++
+
+**backup_history.sh:**
+Stripped my moer about losing my 50K+ bash history file AGAIN. Wrote a super simple script for use with a nightly cron.
+
+**Usage:**
+backup_history.sh 
